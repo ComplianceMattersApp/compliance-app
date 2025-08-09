@@ -1,26 +1,73 @@
-<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>Compliance Matters</title>
-  </head>
-  <body style="font-family:system-ui;margin:40px">
-    <h1>Compliance Matters App — Live ✅</h1>
-    <p>If you see this, Vercel + Cloudflare are hooked up.</p>
+<script>
+(async () => {
+  const root = document.createElement('div');
+  root.style.marginTop = '24px';
+  document.body.appendChild(root);
 
-    <script>
-      (async () => {
-        const el = document.createElement('pre');
-        el.textContent = 'Checking API...';
-        document.body.appendChild(el);
-        try {
-          const r = await fetch('https://api.compliancemattersca.com/api/health');
-          const data = await r.json();
-          el.textContent = 'API Health: ' + JSON.stringify(data);
-        } catch (e) {
-          el.textContent = 'API call failed: ' + e.message;
-        }
-      })();
-    </script>
-  </body>
-</html>
+  const status = document.createElement('div');
+  status.textContent = 'Loading jobs...';
+  root.appendChild(status);
+
+  const table = document.createElement('table');
+  table.style.borderCollapse = 'collapse';
+  table.style.marginTop = '12px';
+  table.style.minWidth = '600px';
+
+  function cell(txt) {
+    const td = document.createElement('td');
+    td.textContent = txt;
+    td.style.border = '1px solid #ddd';
+    td.style.padding = '8px';
+    return td;
+  }
+
+  function headerRow(...labels) {
+    const tr = document.createElement('tr');
+    labels.forEach(l => {
+      const th = document.createElement('th');
+      th.textContent = l;
+      th.style.textAlign = 'left';
+      th.style.border = '1px solid #ddd';
+      th.style.padding = '8px';
+      th.style.background = '#f7f7f7';
+      tr.appendChild(th);
+    });
+    return tr;
+  }
+
+  table.appendChild(headerRow('ID', 'Address', 'Status', 'Tech'));
+  root.appendChild(table);
+
+  async function load() {
+    try {
+      status.textContent = 'Loading jobs...';
+      const r = await fetch('https://api.compliancemattersca.com/api/jobs', { cache: 'no-store' });
+      const data = await r.json();
+      // Clear previous rows (keep header)
+      table.querySelectorAll('tr:not(:first-child)').forEach(tr => tr.remove());
+
+      (data.jobs || []).forEach(j => {
+        const tr = document.createElement('tr');
+        tr.appendChild(cell(j.id));
+        tr.appendChild(cell(j.address));
+        tr.appendChild(cell(j.status));
+        tr.appendChild(cell(j.tech));
+        table.appendChild(tr);
+      });
+
+      status.textContent = `API Health: OK • ${data.jobs?.length || 0} job(s)`;
+    } catch (e) {
+      status.textContent = 'API call failed: ' + e.message;
+    }
+  }
+
+  // Refresh button
+  const btn = document.createElement('button');
+  btn.textContent = 'Refresh';
+  btn.style.marginTop = '8px';
+  btn.onclick = load;
+  root.appendChild(btn);
+
+  await load();
+})();
+</script>
