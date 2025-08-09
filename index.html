@@ -80,6 +80,21 @@
 
   await load();
 })();
+  
+  // after the table is built in your existing script
+const addBtn = document.createElement('button');
+addBtn.textContent = 'Add Demo Job';
+addBtn.style.marginLeft = '8px';
+addBtn.onclick = async () => {
+  await fetch('https://api.compliancemattersca.com/api/jobs', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ customerId: 1, addressId: 101, title: 'Demo Job', status: 'Scheduled', tech: 'Unassigned' })
+  });
+  await load(); // reuse the existing load() to refresh the table
+};
+root.appendChild(addBtn);
+
 </script>
 
   </body>
