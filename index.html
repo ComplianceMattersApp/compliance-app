@@ -6,3 +6,17 @@
     <p>If you see this, Vercel + Cloudflare are hooked up.</p>
   </body>
 </html>
+<script>
+(async () => {
+  const el = document.createElement('pre');
+  el.textContent = 'Checking API...';
+  document.body.appendChild(el);
+  try {
+    const r = await fetch('https://api.compliancemattersca.com/api/health');
+    const data = await r.json();
+    el.textContent = 'API Health: ' + JSON.stringify(data);
+  } catch (e) {
+    el.textContent = 'API call failed: ' + e.message;
+  }
+})();
+</script>
